@@ -1,4 +1,4 @@
-#### Projet
+### Projet
 
 ###### Introduction
 L’émission de messages en binaires dans la télécommunication terrestre et/ou spatiale, les techniques d’encodage et leur coût calculatoire.
