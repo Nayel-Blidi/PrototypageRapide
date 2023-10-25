@@ -18,6 +18,9 @@ Comment générer un réseau de neurones permettant le décodage de signaux bina
 - V1 : structure, perfs
 - V2 : structure, perfs
 - V3: …
+###### Simulation ordinateur
+- PSK Class (carrier phase) (low quality video data)
+- QAM Class (carrier phase and amplitude) (hd video data eg: 4096 QAM
 ###### Simulation électronique
 - Domaine d’application
 - Bruit simulé/apparenté
