@@ -7,10 +7,10 @@ import sys
 class SixteenQAM():
     """
     A class dedicated to binary signal emission simulation in temporal resolution.
-    16QAM stands for 16 (values) Quadrature Amplitude Modulation : 
-        1) Every word in bit is transmitted over a duration 1/Rb as a cosin of frequency Fc
-        2) Cosine amplitude is modulated by A in [0.25, 0.5, 0.75, 1] (In-Phase channel)
-        3) Cosine phase is modulated by n * pi, n in [0.25, 0.5, 0.75, 1] (Quadrature channel)
+    16QAM stands for 16 (values) Quadrature Amplitude Modulation : \n
+        1) Every word in bit is transmitted over a duration 1/Rb as a cosin of frequency Fc \n
+        2) Cosine amplitude is modulated by A in [0.25, 0.5, 0.75, 1] (In-Phase channel) \n
+        3) Cosine phase is modulated by n * pi, n in [0.25, 0.5, 0.75, 1] (Quadrature channel) \n
     """
 
     def __init__(self, 
@@ -142,6 +142,7 @@ class SixteenQAM():
             for col_idx in range(0, len(row), step):
                     temporal_message[row_idx, col_idx:col_idx+step] = row[col_idx]
 
+        self.message = temporal_message
         self.sampled = temporal_message
         return self.message
     
@@ -241,7 +242,8 @@ qam = sixteen_qam.signalModulation()
 qam_n = sixteen_qam.gaussianNoise()
 sam_sampled = sixteen_qam.signalSampling()
 
-sixteen_qam.stepVisualization(show=True, max_itt=4)
+if __name__ =="__main__":
+    sixteen_qam.stepVisualization(show=True, max_itt=4)
 
 if __name__ == "__main__" and "plots" in sys.argv:
     plt.subplots(2, 1)
