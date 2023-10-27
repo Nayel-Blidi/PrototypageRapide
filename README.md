@@ -1,5 +1,6 @@
-### Projet
+# Projet prototypage rapide
 
+## Plan
 ###### Introduction
 L’émission de messages en binaires dans la télécommunication terrestre et/ou spatiale, les techniques d’encodage et leur coût calculatoire.
 ###### Problématique	
@@ -27,9 +28,9 @@ Comment générer un réseau de neurones permettant le décodage de signaux bina
 - Résultat du décodage avec le NN
 ###### Conclusion
 ###### Bibliographie / Sitographie
-
-#### Structure app
-
+  
+## Structure app
+  
 ###### main.py  
 - calls ilageHandler functions  
 - offers input selections / folder / images  
