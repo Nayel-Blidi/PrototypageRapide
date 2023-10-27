@@ -30,25 +30,25 @@ Comment générer un réseau de neurones permettant le décodage de signaux bina
 
 #### Structure app
 
-main.py
-- calls ilageHandler functions
-- offers input selections / folder / images
-imageHandler.py
-- loads images
-- applies class modulation 
-- applies class demodulation and/or nn demodulation
-- evaluates performances either way
-PSK.py
-- applies Bpsk mod
-- applies Qpsk mod? 
-- proposes pipelines methods
-QAM.py
-- applies 16qam mod
-- applies 64-4096qam mod? 
-- proposes pipelines methods
-mainDeepPSK
-- trains/tests psk nn
-- proposes evaluation method
-mainDeepQAM
-- trains/tests QAM nn
-- proposes evaluation methods 
+###### main.py  
+- calls ilageHandler functions  
+- offers input selections / folder / images  
+###### imageHandler.py  
+- loads images  
+- applies class modulation   
+- applies class demodulation and/or nn demodulation  
+- evaluates performances either way  
+###### PSK.py  
+- applies Bpsk mod  
+- applies Qpsk mod?   
+- proposes pipelines methods  
+###### QAM.py  
+- applies 16qam mod  
+- applies 64-4096qam mod?  
+- proposes pipelines methods  
+###### mainDeepPSK  
+- trains/tests psk nn  
+- proposes evaluation method  
+###### mainDeepQAM  
+- trains/tests QAM nn  
+- proposes evaluation methods   
