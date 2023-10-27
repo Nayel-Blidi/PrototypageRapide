@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import integrate
 from tqdm import tqdm
+import sys
 
 class SixteenQAM():
     """
@@ -107,10 +108,10 @@ class SixteenQAM():
         T = self.timeResolution
         t = np.linspace(0, T, T) # Time vector, timeResolution is a simulation parameter
 
-        temporal_message = np.zeros((self.words_number, self.word_length*T))
+        temporal_message = np.zeros((self.words_number, T))
         for row_idx, row in enumerate(self.message):
-            for col_idx, col in enumerate(row):
-                temporal_message[row_idx, col_idx*T:(col_idx+1)*T] = col * np.cos(2 * np.pi * (Fc/Rb) * t)   
+            inphase_symbol, quadrature_symbol = self.message[row_idx]
+            temporal_message[row_idx, 0:T] = quadrature_symbol * np.cos(2 * np.pi * (Fc/Rb) * t + inphase_symbol)   
 
         self.message = temporal_message   
         self.modulation = self.message
@@ -123,6 +124,25 @@ class SixteenQAM():
         """
         self.message = self.message + np.random.rand(*self.message.shape) * self.sigma
         self.noised = self.message
+        return self.message
+
+    def signalSampling(self):
+        """
+        Method \n
+        Samples the temporal signal, as if received by an oscillator
+        """
+        T = self.timeResolution
+        Fs = self.Fs
+        Fc = self.Fc
+        # A value is retreived every step, which results in Fs values every second
+        step = round(T/(Fs/Fc))
+
+        temporal_message = np.zeros((self.words_number, T))
+        for row_idx, row in enumerate(self.message):
+            for col_idx in range(0, len(row), step):
+                    temporal_message[row_idx, col_idx:col_idx+step] = row[col_idx]
+
+        self.sampled = temporal_message
         return self.message
     
     def stepVisualization(self, max_itt=2, show=True):
@@ -207,26 +227,6 @@ class SixteenQAM():
             error_message = "No modulated signal to plot. Verify the signalSampling() step."
             print(error_message)
 
-        # %% Decided message
-        try:
-            plt.subplots(2, 1)
-            message_encoded = self.bpsk.flatten()
-            message_decoded = self.decided.flatten()
-            N = len(message_decoded)
-            plt.subplot(2, 1, 1)
-            plt.bar(np.linspace(0, N, N), message_encoded, label=f"message encoded={message_encoded}")
-            plt.title("Encoded message")
-            if plotLegend:
-                plt.legend(loc="upper right")
-            plt.subplot(2, 1, 2)
-            plt.bar(np.linspace(0, N, N), message_decoded, label=f"message decoded={message_decoded}")
-            plt.title("Decoded message")
-            if plotLegend:
-                plt.legend(loc="upper right")
-        except:
-            error_message = "No decided/bpsk signal to plot. Verify decided()/bpsk() step."
-            print(error_message)
-
         # %%
         if not show and not self.visualizations:
             plt.close('all')
@@ -234,7 +234,30 @@ class SixteenQAM():
         return plt.show()
 
 
-sixteen_qam = SixteenQAM(word_length=4, words_number=100)
+sixteen_qam = SixteenQAM(word_length=4, words_number=100, Fs=20000)
 message = sixteen_qam.sequenceGenerator()
 symbols = sixteen_qam.QAM()
-sixteen_qam.stepVisualization(show=True)
+qam = sixteen_qam.signalModulation()
+qam_n = sixteen_qam.gaussianNoise()
+sam_sampled = sixteen_qam.signalSampling()
+
+sixteen_qam.stepVisualization(show=True, max_itt=4)
+
+if __name__ == "__main__" and "plots" in sys.argv:
+    plt.subplots(2, 1)
+    plt.subplot(2, 1, 1)
+    for k in range(20):
+        plt.plot(qam[k,:])
+    plt.subplot(2, 1, 2)
+    for k in range(20):
+        plt.plot(qam_n[k,:])
+
+    plt.subplots(2, 1)
+    plt.subplot(2, 1, 1)
+    for k in range(4):
+        plt.plot(qam[k,:])
+    plt.subplot(2, 1, 2)
+    for k in range(4):
+        plt.plot(qam_n[k,:])
+    plt.show()
+
