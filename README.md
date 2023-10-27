@@ -21,18 +21,18 @@ Comment générer un réseau de neurones permettant le décodage de signaux bina
 - V3: …
 ### Simulation ordinateur
 - PSK Class (carrier phase) (low quality video data)
-- QAM Class (carrier phase and amplitude) (hd video data eg: 4096 QAM
+- QAM Class (carrier phase and amplitude) (hd video data eg: 4096 QAM)
 ### Simulation électronique
 - Domaine d’application
 - Bruit simulé/apparenté
 - Résultat du décodage avec le NN
 ### Conclusion
 ### Bibliographie / Sitographie
-  
+   
 ## Structure app
-  
+   
 ### main.py  
-- calls ilageHandler functions  
+- calls imageHandler functions  
 - offers input selections / folder / images  
 ### imageHandler.py  
 - loads images  
