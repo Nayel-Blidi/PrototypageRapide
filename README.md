@@ -53,3 +53,4 @@ Comment générer un réseau de neurones permettant le décodage de signaux bina
 ###### mainDeepQAM  
 - trains/tests QAM nn  
 - proposes evaluation methods   
+  
