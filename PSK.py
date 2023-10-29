@@ -23,10 +23,10 @@ class BPSK():
 
     def __init__(self, 
                  message=None,
-                 word_length=1, words_number=2, 
+                 word_length=1, words_number=12, 
                  sigma=1,
-                 Fc=4e2, Fs=20e2, Rb=1e2,
-                 timeResolution=10e2,
+                 Fc=4, Fs=20, Rb=1,
+                 timeResolution=100,
                  visualizations=False,
                  ):
         
@@ -130,8 +130,8 @@ class BPSK():
         Method \n
         Noises the modulated signal, as if it was emitted through an Additive White Noise Channel (AWGN)
         """
-        message = self.message + np.random.rand(*self.message.shape) * self.sigma
-        self.noised = message
+        self.message = self.message + np.random.rand(*self.message.shape) * self.sigma
+        self.noised = self.message
 
         # T = round(self.timeResolution)
         # t = np.linspace(0, 1/self.Rb, T) # Time vector, timeResolution is a simulation parameter
@@ -162,8 +162,9 @@ class BPSK():
         for row_idx, row in enumerate(self.message):
             for col_idx in range(0, len(row), step):
                     temporal_message[row_idx, col_idx:col_idx+step] = row[col_idx]
+        self.temporal_sampled = temporal_message
+        self.sampled = self.message[:, ::step]
 
-        self.sampled = temporal_message
         return self.message
     
 
@@ -175,8 +176,10 @@ class BPSK():
         T = self.timeResolution
         Fs = self.Fs
         Fc = self.Fc
+        Rb = self.Rb
         # A value is retreived every step, which results in Fs values every second
         step = round(T/(Fs/Fc))
+        t = np.linspace(0, 1/Rb, round(T/step))
 
         self.message = self.message.flatten()#.astype(complex)
         self.message = self.message[::step]
@@ -223,17 +226,13 @@ class BPSK():
         return self.message
 
 
-    def stepVisualization(self, max_itt=2, show=False):
+    def stepVisualization(self, show=False):
         """ 
         Function \n
         Plots the different steps of the BPSK process
         """
-        plotLegend = False
-        if (self.word_length * self.words_number) <= 16:
-            plotLegend = True
+        plotLegend = True
 
-        if max_itt>4 or max_itt<0:
-            max_itt = 4
 
         # %% Bit sequence plot
         plt.subplots(2, 1)
@@ -243,7 +242,6 @@ class BPSK():
             N = len(message)
             plt.subplot(2, 1, 1)
             plt.bar(np.linspace(0, N-1, N), message, label="Bits sequence")
-            plt.title("Bits sequence")
         except:
             None
         try:
@@ -251,7 +249,8 @@ class BPSK():
             N = len(message)
             plt.subplot(2, 1, 1)
             plt.bar(np.linspace(0, N-1, N), message, label="Bits sequence")
-            plt.title("Bits sequence")
+            if plotLegend:
+                plt.legend(loc="upper right")
         except:
             error_message = "No message nor sequence to plot. initialization inputs or the sequenceGenerator() step"
             print(error_message)
@@ -261,8 +260,7 @@ class BPSK():
             plt.subplot(2, 1, 2)
             message = self.bpsk.flatten()
             N = len(message)
-            plt.bar(np.linspace(0, N-1, N), message, label=f"message={(message+1)//2}")
-            plt.title("BPSK encoded sequence")
+            plt.bar(np.linspace(0, N-1, N), message, label=f"Symbols (BPSK) sequence")
             if plotLegend:
                 plt.legend(loc="upper right")
         except:
@@ -272,16 +270,15 @@ class BPSK():
         # %% Time resolution signal
         try:
             plt.subplots(4, 1)
+            plt.suptitle(f"Temporal resolution modulated signal")
             plt.subplot(4, 1, 1)
-            plt.plot(self.temporal_message[0, :], label=f"bit={self.sequence.flatten()[0]}")
-            plt.title("temporal_message")
-            plt.subplot(4, 1, 2)
-            plt.plot(self.modulated_message[0, :], label=f"bit={self.sequence.flatten()[0]}")
-            plt.title("modulated_message")
-
+            plt.plot(self.temporal_message[0, :], label=f"simulated_message, bit={self.sequence.flatten()[0]}")
             if plotLegend:
                 plt.legend(loc="upper right")
-            plt.suptitle(f"Temporal resolution modulated signal")
+            plt.subplot(4, 1, 2)
+            plt.plot(self.modulated_message[0, :], label=f"modulated_message, bit={self.sequence.flatten()[0]}")
+            if plotLegend:
+                plt.legend(loc="upper right")
         except:
             error_message = "No modulated signal to plot. Verify the signalModulation() step."
             print(error_message)
@@ -289,19 +286,17 @@ class BPSK():
         # %% Noisy signal
         try:
             plt.subplot(4, 1, 3)
-            plt.plot(self.noised[0, :], label=f"bit={self.sequence.flatten()[0]}")
-            plt.title("noised_message")
+            plt.plot(self.noised[0, :], label=f"noised_message, bit={self.sequence.flatten()[0]}")
             if plotLegend:
                 plt.legend(loc="upper right")
         except:
             error_message = "No noised signal to plot. Verify the gaussianNoise() step."
             print(error_message)
 
-        # %% Time resolution signal
+        # %% Sampled signal
         try:
             plt.subplot(4, 1, 4)
-            plt.plot(self.sampled[0, :], label=f"bit={self.sequence.flatten()[0]}")
-            plt.title(f"Sampled signal")
+            plt.plot(self.temporal_sampled[0, :], label=f"sampled_signal, bit={self.sequence.flatten()[0]}")
             if plotLegend:
                     plt.legend(loc="upper right")
         except:
@@ -314,14 +309,13 @@ class BPSK():
             message_encoded = self.bpsk.flatten()
             message_decoded = self.decided.flatten()
             N = len(message_decoded)
+            plt.suptitle(f"Transmission results : \n success_rate = {np.sum(message_encoded == message_decoded)/N:.2}, std = {self.sigma}")
             plt.subplot(2, 1, 1)
-            plt.bar(np.linspace(0, N, N), message_encoded, label=f"message encoded={message_encoded[:]}")
-            plt.title("Encoded message")
+            plt.bar(np.linspace(0, N, N), message_encoded, label=f"BPSK encoded message")
             if plotLegend:
                 plt.legend(loc="upper right")
             plt.subplot(2, 1, 2)
-            plt.bar(np.linspace(0, N, N), message_decoded, label=f"message decoded={message_decoded[:]}")
-            plt.title("Decoded message")
+            plt.bar(np.linspace(0, N, N), message_decoded, label=f"BPSK decoded message")
             if plotLegend:
                 plt.legend(loc="upper right")
         except:
@@ -329,16 +323,16 @@ class BPSK():
             print(error_message)
 
         # %% Constellation
-        try:
-            plt.figure()
-            constellation_real = self.constellation[0::2]
-            constellation_imag = self.constellation[1::2]
-            plt.scatter(constellation_real, constellation_imag)
-            plt.grid(True)
-            plt.suptitle("Decision constellation")
-        except:
-            error_message = "No constellation to plot. Verify decided() step"
-            print(error_message)
+        # try:
+        #     plt.figure()
+        #     constellation_real = self.constellation[0::2]
+        #     constellation_imag = self.constellation[1::2]
+        #     plt.scatter(constellation_real, constellation_imag)
+        #     plt.grid(True)
+        #     plt.suptitle("Decision constellation")
+        # except:
+        #     error_message = "No constellation to plot. Verify decided() step"
+        #     print(error_message)
 
         # %%
         if not show and not self.visualizations:
@@ -363,14 +357,14 @@ bpsk_pipeline = [
     BPSK.grayDemapping,
 ]
 
-bpsk_class = BPSK(word_length=1, words_number=12)
+bpsk_class = BPSK(word_length=1, words_number=1e3, sigma=2)
 for step in tqdm(bpsk_pipeline, desc="BPSK Pipeline progression"):
     message = step(bpsk_class)
     time.sleep(0.1)
 np.savetxt("BPSK_output.txt", message, delimiter=",", fmt="%d")
 
 if __name__ == "__main__" and "plots" in sys.argv:
-    bpsk_class.stepVisualization(show=True, max_itt=4)
+    bpsk_class.stepVisualization(show=True)
 
 if __name__ == "__main__" and "cos" in sys.argv:
     t = np.linspace(0, np.pi, 100)
