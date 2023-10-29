@@ -104,7 +104,7 @@ class SimpleNN(nn.Module):
         x = self.relu(x)    
         x = self.sigmoid(x)
 
-        return x - 0.01
+        return x
 
     def BPSK(self, x):
         return x * 2 - 1
@@ -182,7 +182,7 @@ class ConvNN(nn.Module):
         
         self.output_layer = nn.Linear(hidden_size//2, input_size)
         self.sigmoid = nn.Sigmoid()  
-            
+
     def forward(self, x):
         
         if self.training:
@@ -231,23 +231,6 @@ class BERLoss(nn.Module):
         
         return ber
 
-class DiceLoss(nn.Module):
-    def __init__(self, weight=None, size_average=True):
-        super(DiceLoss, self).__init__()
-
-    def forward(self, inputs, targets, smooth=1):
-
-        inputs = F.sigmoid(inputs)
-
-        inputs = inputs.view(-1)
-        targets = targets.view(-1)
-
-        intersection = (inputs * targets).sum()
-        print(intersection)
-        dice = (2.*intersection + smooth)/(inputs.sum() + targets.sum() + smooth)
-        print(dice)
-        return 1 - dice
-    
 # %% Data preprocessing
 if __name__ == "__main__" and "data" in sys.argv:
 
