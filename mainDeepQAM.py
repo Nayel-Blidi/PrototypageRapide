@@ -26,22 +26,22 @@ from torch.utils.data import DataLoader, TensorDataset
 
 import sys
 
-def PipelineSixteenQAM(words_number=10000, noise=True):
+def PipelineSixteenQAM(words_number=10000, noise=True, sigma=1):
     """
     Function \n
     Returns a randomly generated bits sequence (Y) and simulated sampled signal (X).
     """
-    qam_class = QAM.SixteenQAM(words_number=words_number, visualizations=False)
+    qam_class = QAM.SixteenQAM_light(words_number=words_number, sigma=sigma, visualizations=False)
     Fs = qam_class.Fs
     Fc = qam_class.Fc
     T = qam_class.timeResolution
 
     Y = qam_class.sequenceGenerator()
-    qam_class.QAM()
-    qam_class.signalModulation()
+    # qam_class.QAM()
+    X = qam_class.signalModulation()
     if noise:
-        qam_class.gaussianNoise()
-    X = qam_class.signalSampling()[:, ::round(T/(Fs/Fc))]
+        X = qam_class.gaussianNoise()
+    # X = qam_class.signalSampling()[:, ::round(T/(Fs/Fc))]
     return X, Y
 
 class SixteenQAM_LayeredNN(nn.Module):
@@ -124,10 +124,16 @@ if __name__ == "__main__" and "training" in sys.argv:
     num_epochs = int(input("Number of epochs : "))    
     for epoch in tqdm(range(num_epochs)):
 
-        words_number = 10000
+        words_number = 1000
         X, Y = PipelineSixteenQAM(words_number=words_number)
         train_dataset = TensorDataset(torch.from_numpy(X).float(), torch.from_numpy(Y).float())
         train_dataloader = DataLoader(train_dataset, batch_size=words_number, shuffle=True)
+
+        # print(X.shape)
+        # print(Y.shape)
+        # plt.plot(X[0,:])
+        # plt.title(Y[0,:])
+        # plt.show()
 
         for inputs, targets in train_dataloader:
             optimizer.zero_grad()  
