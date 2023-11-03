@@ -59,8 +59,8 @@ class SignalHandler(object):
         Convert image (array) into array of binary signals
         """
         sig_flat = list(sig.flatten())
-        lst = [bin(e)[2:].zfill(8) for e in sig_flat]
-        self.converted_signal = np.array([[int(e) for e in char] for char in lst], dtype=int)
+        lst = [[int(elt) for elt in bin(e)[2:].zfill(8)] for e in sig_flat]
+        self.converted_signal = np.array(lst, dtype=int)
 
     def to_image(self, shape: tuple[int, int, int]) -> None:
         """
