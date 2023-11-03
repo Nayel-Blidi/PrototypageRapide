@@ -157,7 +157,7 @@ class ConvNN(nn.Module):
         x = self.maxpool(x)
         x = torch.max(x, dim=2)[0]
 
-        # x = self.dropout(x)
+        x = self.dropout(x)
 
         x = self.output(x)
         x = self.sigmoid(x)
@@ -165,18 +165,48 @@ class ConvNN(nn.Module):
         return x
 
 class RNN(nn.Module):
-    def __init__(self, input_size, output_size=4, sigma=1, hidden_size=64):
+    def __init__(self, input_size, output_size=4, sigma=1, hidden_size=64, num_layers=2):
         super(RNN, self).__init__()
 
         self.input_size = input_size
         self.hidden_size = hidden_size
         self.output_size = output_size
         self.sigma = sigma
+        self.num_layers = num_layers
+        self.num_directions = 1
 
+        self.p = 0.2
 
-    def forward(self):
-        pass
+        self.rnn = nn.RNN(input_size=input_size,
+                          hidden_size=hidden_size,
+                          num_layers=num_layers,
+                          dropout=self.p,
+                          batch_first=True)
+        
+        self.linear = nn.Linear(in_features=(hidden_size*self.num_directions), out_features=output_size)
 
+        self.sigmoid = nn.Sigmoid()
+        
+        self.dropout = nn.Dropout(p=self.p)
+        
+
+    def forward(self, x):
+        # Initialize hidden state with zeros
+        h0 = torch.zeros(self.num_layers*self.num_directions, x.size(0), self.hidden_size)
+        
+        # RNN forward pass
+        x, _ = self.rnn(x, h0)
+        
+        # Index the output of the last time step
+        x = x[:, -1, :]
+        
+        # Fully connected layer
+        x = self.linear(x)
+        x = self.sigmoid(x)
+
+        return x
+
+    
 # %% Model training
 if __name__ == "__main__" and "training" in sys.argv:
 
@@ -196,10 +226,15 @@ if __name__ == "__main__" and "training" in sys.argv:
                             hidden_size=hidden_size)
         model_name = "SixteenQAM_LayeredNN"
     elif "SequentialNN" in sys.argv:
-        hidden_size=512
+        hidden_size=128
         model = SequentialLayeredNN(input_size=input_size, 
                                     hidden_size=hidden_size)
         model_name = "SixteenQAM_SequentialLayeredNN"
+    elif "RNN" in sys.argv:
+        hidden_size=128
+        model = RNN(input_size=input_size, 
+                    hidden_size=hidden_size)
+        model_name = "SixteenQAM_RNN"
     else:
         model = LayeredNN(input_size=input_size, 
                             hidden_size=hidden_size)
@@ -228,15 +263,12 @@ if __name__ == "__main__" and "training" in sys.argv:
         train_dataset = TensorDataset(torch.from_numpy(X).float(), torch.from_numpy(Y).float())
         train_dataloader = DataLoader(train_dataset, batch_size=words_number, shuffle=True)
 
-        # print(X.shape)
-        # print(Y.shape)
-        # plt.plot(X[0,:])
-        # plt.title(Y[0,:])
-        # plt.show()
-
         for inputs, targets in train_dataloader:
             if "ConvNN" in sys.argv:
                 inputs = torch.unsqueeze(input=inputs, dim=1)
+            if "RNN" in sys.argv:
+                inputs = torch.unsqueeze(input=inputs, dim=1)
+
             optimizer.zero_grad()  
             outputs = model(inputs)  
 
@@ -253,12 +285,18 @@ if __name__ == "__main__" and "training" in sys.argv:
     print(outputs[0:5])   
     print(f"Final loss: {loss.item()}")
 
-    # plt.plot(losses_list)
-    # plt.xlabel("Epochs")
-    # plt.ylabel("Running loss")
+    plt.plot(losses_list)
+    plt.xlabel("Epochs")
+    plt.ylabel("Running loss")
+    plt.show()
+
+    # print(X.shape)
+    # print(Y.shape)
+    # plt.plot(X[0,:])
+    # plt.title(Y[0,:])
     # plt.show()
 
-    torch.save(model.state_dict(), f"{model_name}_{num_epochs}.pth")
+    torch.save(model.state_dict(), f"Models/{model_name}_{num_epochs}.pth")
     print("Finished Training, model saved")
 
 # %% Model testing
@@ -279,17 +317,22 @@ if __name__ == "__main__" and "testing" in sys.argv:
     if ("training" not in sys.argv) and ("LayeredNN" in sys.argv):
         num_epochs = int(input("Model's number of epochs to load : "))
         model = LayeredNN(input_size=input_size, hidden_size=128)
-        model.load_state_dict(torch.load(f"SixteenQAM_LayeredNN_{num_epochs}.pth"))
+        model.load_state_dict(torch.load(f"Models/SixteenQAM_LayeredNN_{num_epochs}.pth"))
 
     if ("training" not in sys.argv) and ("ConvNN" in sys.argv):
         num_epochs = int(input("Model's number of epochs to load : "))
         model = ConvNN(input_size=input_size, hidden_size=128)
-        model.load_state_dict(torch.load(f"SixteenQAM_ConvNN_{num_epochs}.pth"))
+        model.load_state_dict(torch.load(f"Models/SixteenQAM_ConvNN_{num_epochs}.pth"))
 
     if ("training" not in sys.argv) and ("SequentialNN" in sys.argv):
         num_epochs = int(input("Model's number of epochs to load : "))
         model = SequentialLayeredNN(input_size=input_size, hidden_size=128)
-        model.load_state_dict(torch.load(f"SixteenQAM_SequentialLayeredNN_{num_epochs}.pth"))
+        model.load_state_dict(torch.load(f"Models/SixteenQAM_SequentialLayeredNN_{num_epochs}.pth"))
+
+    if ("training" not in sys.argv) and ("RNN" in sys.argv):
+        num_epochs = int(input("Model's number of epochs to load : "))
+        model = RNN(input_size=input_size, hidden_size=128)
+        model.load_state_dict(torch.load(f"Models/SixteenQAM_RNN_{num_epochs}.pth"))
 
     model.eval()
     correct = 0
@@ -299,6 +342,8 @@ if __name__ == "__main__" and "testing" in sys.argv:
             
             test_labels = test_labels.numpy()
             if "ConvNN" in sys.argv:
+                test_features = torch.unsqueeze(input=test_features, dim=1)
+            if "RNN" in sys.argv:
                 test_features = torch.unsqueeze(input=test_features, dim=1)
 
             outputs = model(test_features)
@@ -311,17 +356,26 @@ if __name__ == "__main__" and "testing" in sys.argv:
             word_wise_success = 0
             zeros = 0
             word_wise_success_idx = []
+            
+            unique_targets = np.unique((test_labels), axis=0)
+            unique_counts = np.zeros((16, 1))
+
+            wrong_rows = np.zeros((1, 4))
             for row_idx, row in enumerate(test_labels):
                 if np.array_equal(row, predicted[row_idx, :]):
                     word_wise_success +=1
                     word_wise_success_idx.append(row_idx)
+                else:
+                    wrong_rows = np.concatenate((wrong_rows, np.array([row])), axis=0)
+
                 if np.array_equal(np.zeros((1, 16)), predicted[row_idx, :]):
                     zeros +=1
 
             bit_wise_accuracy = round(bit_wise_succes/np.size(test_labels), 2)
             word_wise_accuracy = round(word_wise_success/test_labels.shape[0], 2)
-            print(predicted[0:5, :])
-            print(test_labels[0:5, :])
+            # print(predicted[0:5, :])
+            # print(test_labels[0:5, :])
+
             print(f"correct bits = {bit_wise_succes}, correct words = {word_wise_success}")
             print(f"bit success rate = {bit_wise_accuracy}, word success rate = {word_wise_accuracy}")
 

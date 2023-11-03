@@ -74,8 +74,8 @@ class SixteenQAM():
         # Every binary word will be placed on the complex plan
         # The first half gives the in-phase (x-axis) position aranged between -1 and 1
         # The second half gives the quadrature (y-axis) position aranged between -1 and 1
-        inphase_vector = np.round(np.linspace(-1, 1, self.word_length), 2)
-        quadrature_vector = np.round(np.linspace(-1, 1, self.word_length), 2)
+        inphase_vector = np.round(np.linspace(-1+1/self.word_length, 1-1/self.word_length, self.word_length), 2)
+        quadrature_vector = np.round(np.linspace(1/self.word_length, 1, self.word_length), 2)
 
         self.inphase_symbol = np.zeros((m)) 
         for row_idx, row in enumerate(self.inphase):
@@ -272,8 +272,8 @@ class SixteenQAM_light():
         # Every binary word will be placed on the complex plan
         # The first half gives the in-phase (x-axis) position aranged between -1 and 1
         # The second half gives the quadrature (y-axis) position aranged between -1 and 1
-        inphase_vector = np.round(np.linspace(-1, 1, self.word_length), 2)
-        quadrature_vector = np.round(np.linspace(-1, 1, self.word_length), 2)
+        inphase_vector = np.round(np.linspace(-1+1/self.word_length, 1-1/self.word_length, self.word_length), 2)
+        quadrature_vector = np.round(np.linspace(1/self.word_length, 1, self.word_length), 2)
 
         self.inphase_symbol = np.zeros((m)) 
         for row_idx, row in enumerate(self.inphase):
@@ -360,10 +360,10 @@ if __name__ =="__main__" and ("16qam_light" in sys.argv) or ("light" in sys.argv
 if __name__ == "__main__" and "plots" in sys.argv:
     plt.subplots(2, 1)
     plt.subplot(2, 1, 1)
-    for k in range(20):
+    for k in range(100):
         plt.plot(qam[k,:])
     plt.subplot(2, 1, 2)
-    for k in range(20):
+    for k in range(10):
         plt.plot(qam_n[k,:])
 
     # plt.subplots(2, 1)
