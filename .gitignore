@@ -161,4 +161,6 @@ cython_debug/
 *.pth
 *.txt
 *.csv
+*.png
+*.jpg
 PSK - Filtering_tests.py
