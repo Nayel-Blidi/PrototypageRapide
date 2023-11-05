@@ -131,9 +131,11 @@ class NeuralNetwork(nn.Module):
 
         self.decoder_layers = nn.Sequential(
             nn.Linear(input_size, hidden_size), nn.ReLU(),
+            nn.Linear(hidden_size, hidden_size), nn.ReLU(),
+            nn.Dropout(0.1),
             nn.Linear(hidden_size, hidden_size//2), nn.ReLU(),
-            nn.Linear(hidden_size//2, hidden_size//4), nn.ReLU(),
-            nn.Linear(hidden_size//4, output_size), nn.Sigmoid()
+            #nn.Dropout(0.1),
+            nn.Linear(hidden_size//2, output_size), nn.Sigmoid()
         )
 
     def forward(self, x):
