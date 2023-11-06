@@ -25,7 +25,7 @@ class BPSK():
                  message=None,
                  word_length=1, words_number=12, 
                  sigma=1,
-                 Fc=4, Fs=20, Rb=1,
+                 Fc=4, Fs=40, Rb=1,
                  timeResolution=100,
                  visualizations=False,
                  ):
@@ -165,7 +165,7 @@ class BPSK():
         self.temporal_sampled = temporal_message
         self.sampled = self.message[:, ::step]
 
-        return self.message
+        return self.sampled
     
 
     def sequenceDecider(self):
@@ -351,7 +351,7 @@ class BPSK_light():
                  word_length=1, words_number=12, 
                  sigma=1,
                  Fc=4, Fs=40, Rb=1,
-                 timeResolution=200,
+                 timeResolution=100,
                  visualizations=False,
                  ):
         
