@@ -133,5 +133,3 @@ for image_name in image_list:
         None
 
 
-    break
-
