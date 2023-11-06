@@ -31,7 +31,7 @@ def PipelineBPSK(words_number=10000, noise=True, sigma=1):
     Function \n
     Returns a randomly generated bits sequence (Y) and simulated sampled signal (X).
     """
-    qam_class = PSK.BPSK_light(words_number=words_number, sigma=sigma, visualizations=False, Fs=8, Fc=4)
+    qam_class = PSK.BPSK_light(words_number=words_number, sigma=sigma, visualizations=False, Fs=20, Fc=4)
     Fs = qam_class.Fs
     Fc = qam_class.Fc
     T = qam_class.timeResolution
