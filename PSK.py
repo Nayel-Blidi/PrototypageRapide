@@ -25,7 +25,7 @@ class BPSK():
                  message=None,
                  word_length=1, words_number=12, 
                  sigma=1,
-                 Fc=4, Fs=40, Rb=1,
+                 Fc=4, Fs=20, Rb=1,
                  timeResolution=100,
                  visualizations=False,
                  ):
@@ -350,7 +350,7 @@ class BPSK_light():
                  message=None,
                  word_length=1, words_number=12, 
                  sigma=1,
-                 Fc=4, Fs=40, Rb=1,
+                 Fc=4, Fs=20, Rb=1,
                  timeResolution=100,
                  visualizations=False,
                  ):
@@ -443,7 +443,7 @@ bpsk_pipeline = [
 ]
 
 if __name__ == "__main__" and "bpsk" in sys.argv:
-    bpsk_class = BPSK(word_length=1, words_number=1e3, sigma=2)
+    bpsk_class = BPSK(word_length=1, words_number=1e3, sigma=1)
     for step in tqdm(bpsk_pipeline, desc="BPSK Pipeline progression"):
         message = step(bpsk_class)
         time.sleep(0.1)
