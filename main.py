@@ -21,6 +21,7 @@ image_list = [file for file in file_list if file.endswith(".jpg")]
 image_list = image_list + [file for file in file_list if file.endswith(".png")]
 
 for image_name in image_list:
+    sigma = 1
     img = np.array(Image.open(image_dir + image_name), dtype=np.uint)
     # plt.imshow(img)
     # plt.show()
@@ -47,7 +48,7 @@ for image_name in image_list:
         words_number=img_to_bin_sg.shape[0]
         timeResolution = 100
         bpsk_class = PSK.BPSK(message=img_to_bin_sg, word_length=words_length, words_number=words_number, 
-                              sigma=1, timeResolution=timeResolution)
+                              sigma=sigma, timeResolution=timeResolution)
         for step in tqdm(bpsk_pipeline, desc="BPSK Pipeline progression"):
             message = step(bpsk_class)
 
@@ -67,7 +68,7 @@ for image_name in image_list:
         # plt.show()
 
         image = Image.fromarray(image_received)
-        image.save(base_dir + "/Image_outputs/bpsk_" + str(timeResolution) +"_" + image_name)
+        image.save(base_dir + f"/Image_outputs/bpsk_s{sigma}_" + str(timeResolution) +"_" + image_name)
 
     if "bpsk_nn" in sys.argv:
         bpsk_pipeline = [
@@ -81,28 +82,26 @@ for image_name in image_list:
         words_number=img_to_bin_sg.shape[0]
         timeResolution = 100
         bpsk_class = PSK.BPSK(message=img_to_bin_sg, word_length=words_length, words_number=words_number, 
-                              sigma=1, timeResolution=timeResolution, Fs=8)
+                              sigma=sigma, timeResolution=timeResolution, Fs=20)
         input_size = round((bpsk_class.Fs / bpsk_class.Rb))
         for step in tqdm(bpsk_pipeline, desc="BPSK Pipeline progression"):
             message = step(bpsk_class)
-        # print(message.shape)
-        # step = round(bpsk_class.timeResolution/(bpsk_class.Fs/bpsk_class.Fc))
-        # message = message[:, ::step]
+
         message = message[:, 0:input_size]
         print(message.shape, input_size)
 
         if ("LayeredNN" in sys.argv):
-            num_epochs = int(input("Model's number of epochs to load : "))
+            num_epochs = 100
             model = mainDPSK.LayeredNN(input_size=input_size, hidden_size=128)
             model.load_state_dict(torch.load(f"Models/BPSK_LayeredNN_{num_epochs}.pth"))
 
         if ("ConvNN" in sys.argv):
-            num_epochs = int(input("Model's number of epochs to load : "))
+            num_epochs = 100
             model = mainDPSK.ConvNN(input_size=input_size, hidden_size=128)
             model.load_state_dict(torch.load(f"Models/BPSK_ConvNN_{num_epochs}.pth"))
 
         if ("SequentialNN" in sys.argv):
-            num_epochs = int(input("Model's number of epochs to load : "))
+            num_epochs = 100
             model = mainDPSK.SequentialLayeredNN(input_size=input_size, hidden_size=128)
             model.load_state_dict(torch.load(f"Models/BPSK_SequentialLayeredNN_{num_epochs}.pth"))
             
@@ -115,10 +114,8 @@ for image_name in image_list:
                 test_features = torch.unsqueeze(input=test_features, dim=1)
 
             outputs = model(test_features)
-            print(outputs[0:5, :])
-            predicted = torch.round(outputs.data).numpy()
+            predicted = torch.round(outputs.data).numpy().astype(int)
         
-        print(predicted[0:10])
         print(predicted.shape)
 
         message = np.reshape(predicted, (m_sig, n_sig))
@@ -129,7 +126,7 @@ for image_name in image_list:
         print(image_received.shape)
 
         image = Image.fromarray(image_received)
-        image.save(base_dir + "/Image_outputs/bpsk_nn_" + str(timeResolution) +"_" + image_name)
+        image.save(base_dir + f"/Image_outputs/bpsk_nn_s{sigma}_" + str(timeResolution) +"_" + image_name)
 
 
     if "qam" in sys.argv:
