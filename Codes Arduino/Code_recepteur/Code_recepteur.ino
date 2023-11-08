@@ -2,7 +2,7 @@
 const int micro = A0;
 
 // Sampling rate (Hz)
-const int sample_rate = 100;
+const int sample_rate = 2500;
 
 void setup() {
   pinMode(micro, INPUT);
@@ -17,5 +17,5 @@ void loop() {
   Serial.println(micro_value);
   
   // Waiting for next sample
-  delay(1000 / sample_rate);
+  delayMicroseconds(1000000 / sample_rate);
 }
