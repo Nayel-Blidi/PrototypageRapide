@@ -16,7 +16,7 @@ class SixteenQAM():
     def __init__(self, 
                  message=None,
                  word_length=4, words_number=10, 
-                 sigma=1,
+                 sigma=1, k=4,
                  Fc=4, Fs=40, Rb=1,
                  timeResolution=100,
                  visualizations=False,
@@ -43,6 +43,9 @@ class SixteenQAM():
 
         if word_length != 4:
             print("WARNING: 16AM modulation is intended for 4 bits long words")
+
+        if word_length != 64:
+            print("WARNING: 4096AM modulation is intended for 64 bits long words")
 
     def sequenceGenerator(self):
         """
@@ -77,9 +80,13 @@ class SixteenQAM():
         inphase_vector = np.round(np.linspace(-1+1/self.word_length, 1-1/self.word_length, self.word_length), 2)
         quadrature_vector = np.round(np.linspace(1/self.word_length, 1, self.word_length), 2)
 
+
         self.inphase_symbol = np.zeros((m)) 
         for row_idx, row in enumerate(self.inphase):
             # If bit value is 0, then symbol is -1, if bit value is 1, then symbol is -0.33 (for 4 arry symbols)
+            print(np.packbits(row, bitorder="little"))
+            print(row)
+
             self.inphase_symbol[row_idx] = inphase_vector[np.packbits(row, bitorder="little")]
 
         self.quadrature_symbol = np.zeros((m)) 
@@ -227,7 +234,7 @@ class SixteenQAM_light():
     def __init__(self, 
                  message=None,
                  word_length=4, words_number=10, 
-                 sigma=1,
+                 sigma=1, k=4,
                  Fc=4, Fs=40, Rb=1,
                  timeResolution=100,
                  visualizations=False,
@@ -324,7 +331,7 @@ class SixteenQAM_light():
         return self.message
 
 if __name__ =="__main__" and "16qam" in sys.argv:
-    sixteen_qam = SixteenQAM(words_number=100)
+    sixteen_qam = SixteenQAM(words_number=100, word_length=4)
     message = sixteen_qam.sequenceGenerator()
     symbols = sixteen_qam.QAM()
     qam = sixteen_qam.signalModulation()
@@ -335,7 +342,7 @@ if __name__ =="__main__" and "16qam" in sys.argv:
         sixteen_qam.stepVisualization(show=True)
 
 if __name__ =="__main__" and ("16qam_light" in sys.argv) or ("light" in sys.argv):
-    sixteen_qam_light = SixteenQAM_light(words_number=100)
+    sixteen_qam_light = SixteenQAM_light(words_number=100, word_length=4)
     Y = sixteen_qam_light.sequenceGenerator()
     X_sim = sixteen_qam_light.signalModulation()
     X = sixteen_qam_light.gaussianNoise()
