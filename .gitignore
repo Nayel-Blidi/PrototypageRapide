@@ -163,4 +163,4 @@ cython_debug/
 *.csv
 *.png
 *.jpg
-PSK - Filtering_tests.py
+test_signal_handler.py 
