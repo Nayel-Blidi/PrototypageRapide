@@ -163,4 +163,7 @@ cython_debug/
 *.csv
 *.png
 *.jpg
+*.wav
+*.m4a
+*.mp3
 test_signal_handler.py 
