@@ -123,7 +123,7 @@ if "bpsk" in sys.argv or "bpsk_nn" in sys.argv:
 
 
 if "sound" in sys.argv:
-    sample_rate, audio_data = wavfile.read("Test1.wav")
+    sample_rate, audio_data = wavfile.read("Image_inputs/Test1.wav")
     audio_len = len(audio_data)
     print(audio_len)
     plt.plot(audio_data)
@@ -142,10 +142,6 @@ if "sound" in sys.argv:
     message = np.reshape(message, (message_len//20, 20))
     print(message.shape)
 
-    # row_magnitudes = np.linalg.norm(message, axis=1, keepdims=True)
-
-    # normalized_matrix = message / row_magnitudes
-
     if True: #("LayeredNN" in sys.argv):
         num_epochs = 100
         model = mainDPSK.LayeredNN(input_size=20, hidden_size=128)
@@ -162,10 +158,10 @@ if "sound" in sys.argv:
         outputs = model(test_features)
         predicted = torch.round(outputs.data).numpy().astype(int)
     
-    answer = np.loadtxt("C:/Users/Nayel BLIDI/Downloads/bits.txt")
+    # answer = np.loadtxt("C:/Users/Nayel BLIDI/Downloads/bits.txt")
     print(predicted.shape)
     # print(predicted)
-    np.savetxt("sound_output.txt", predicted.T, delimiter='', fmt='%d')
+    np.savetxt("Image_inputs/sound_output.txt", predicted.T, delimiter='', fmt='%d')
 
     success = 0
     for k in predicted:
