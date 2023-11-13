@@ -3,7 +3,7 @@ const int speaker = 12;
 
 // Carrier and bit rate frequencies (Hz)
 const int carrier = 500;
-const int bit_rate = 1;
+const int bit_rate = 125;
 const int period = 1000 / carrier; // Period (ms)
 
 bool checkMessage(String string_to_test){
@@ -31,7 +31,7 @@ void setup() {
 void loop() {
   // Retrieving word to send
   Serial.println("Please, enter binary message:");
-  
+  /*
   // Waiting for message
   bool string_complete = false;
   String input_string = "";
@@ -49,9 +49,9 @@ void loop() {
     }
     delay(10);
   }
-  
+  */
   delay(1000);
-  //String input_string = "0101011100";
+  String input_string = "010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100010101110001010111000101011100";
   // Comfirming it to user
   Serial.print("Recieved chain: ");
   delay(100);
