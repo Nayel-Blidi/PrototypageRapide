@@ -6,7 +6,7 @@ import signal_handler as sh
 from PIL import Image
 import matplotlib.pyplot as plt
 from tqdm import tqdm
-from pydub import AudioSegment
+# from pydub import AudioSegment
 import numpy as np
 from scipy.io import wavfile
 
@@ -90,12 +90,12 @@ if "bpsk" in sys.argv or "bpsk_nn" in sys.argv:
             for step in tqdm(bpsk_pipeline, desc="BPSK Pipeline progression"):
                 message = step(bpsk_class)
 
-            message = np.array([message[:, 0:input_size].flatten()]).T
+            # message = np.array([message[:, 0:input_size].flatten()]).T
             print(message.shape, input_size)
 
             if True: #("LayeredNN" in sys.argv):
                 num_epochs = 100
-                model = mainDPSK.LayeredNN(input_size=1, hidden_size=128)
+                model = mainDPSK.LayeredNN(input_size=input_size, hidden_size=128)
                 model.load_state_dict(torch.load(f"Models/BPSK_LayeredNN_{num_epochs}.pth"))
 
             model.eval()
@@ -123,7 +123,9 @@ if "bpsk" in sys.argv or "bpsk_nn" in sys.argv:
 
 
 if "sound" in sys.argv:
-    sample_rate, audio_data = wavfile.read("Image_inputs/Test1.wav")
+    # sample_rate, audio_data = wavfile.read("Image_inputs/Test1.wav")
+    sample_rate, audio_data = wavfile.read(base_dir + "/Image_inputs/Message_raw.wav")
+
     audio_len = len(audio_data)
     print(audio_len)
     plt.plot(audio_data)
@@ -135,7 +137,7 @@ if "sound" in sys.argv:
     message_len = len(message)
     plt.figure()
     plt.plot(message)
-    # plt.show()
+    plt.show()
 
     message = message[:message_len//20*20]
     print(message.shape)

@@ -255,7 +255,7 @@ if __name__ == "__main__" and "training" in sys.argv:
 if __name__ == "__main__" and "testing" in sys.argv:
 
     words_number = 10000
-    X, Y = PipelineBPSK(words_number=words_number, sigma=4)
+    X, Y = PipelineBPSK(words_number=words_number, sigma=1)
     test_dataset = TensorDataset(torch.from_numpy(X).float(), torch.from_numpy(Y).float())
     test_dataloader = DataLoader(test_dataset, batch_size=words_number, shuffle=True)
 
