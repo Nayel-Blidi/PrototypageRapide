@@ -1,4 +1,5 @@
-# Projet prototypage rapide
+# Noise cancelling using deep learning
+A proof-of-concept applied to telecoms
 
 ## Plan
 ### Introduction
